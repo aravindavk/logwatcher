@@ -1,0 +1,21 @@
+[package]
+name = "logwatcher"
+version = "0.1.0"
+authors = ["Aravinda VK <mail@aravindavk.in>"]
+
+description = "A lib to watch log files for new Changes, just like tail -f"
+
+documentation = "https://github.com/aravindavk/logwatcher"
+homepage = "https://github.com/aravindavk/logwatcher"
+repository = "https://github.com/aravindavk/logwatcher"
+
+readme = "README.md"
+keywords = ["log", "watcher", "tail"]
+license = "MIT/Apache-2.0"
+
+
+[lib]
+name = "logwatcher"
+crate-type = ["rlib"]
+
+[dependencies]
