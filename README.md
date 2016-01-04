@@ -1,5 +1,7 @@
 # Log Watcher
 
+[![Build Status](https://travis-ci.org/aravindavk/logwatcher.svg?branch=master)](https://travis-ci.org/aravindavk/logwatcher)
+
 A [Rust](https://www.rust-lang.org/) library to watch the log files.
 
 Note: Tested only in Linux
