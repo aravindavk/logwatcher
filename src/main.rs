@@ -5,8 +5,8 @@ extern crate logwatcher;
 use logwatcher::LogWatcher;
 
 
-fn parse_line(line: String) {
-    println!("Line {}", line);
+fn parse_line(filename: String, inode: u64, pos: u64, line: String) {
+    println!("Line {} {} {} {}", filename, inode, pos, line);
 }
 
 fn main(){
@@ -17,6 +17,6 @@ fn main(){
             exit(1);
         }
     };
-    let mut log_watcher = LogWatcher::register(filename).unwrap();
+    let mut log_watcher = LogWatcher::register(filename, -1, 0).unwrap();
     log_watcher.watch(parse_line);
 }
