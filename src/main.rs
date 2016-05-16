@@ -2,11 +2,11 @@ use std::env::args;
 use std::process::exit;
 
 extern crate logwatcher;
-use logwatcher::LogWatcher;
+use logwatcher::{LogWatcher, LogMsg};
 
 
-fn parse_line(filename: String, inode: u64, pos: u64, line: String) {
-    println!("Line {} {} {} {}", filename, inode, pos, line);
+fn parse_line(msg: LogMsg) {
+    println!("Line {} {} {} {}", msg.filename, msg.inode, msg.pos, msg.line);
 }
 
 fn main(){
