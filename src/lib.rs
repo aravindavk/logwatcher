@@ -33,7 +33,7 @@ impl LogWatcher {
             metadata.len()
         } else {
             start_pos
-        }
+        };
         reader.seek(SeekFrom::Start(pos)).unwrap();
         Ok(LogWatcher{filename: filename,
                       inode: metadata.ino(),
@@ -87,7 +87,7 @@ impl LogWatcher {
                     if len > 0{
                         self.pos += len as u64;
                         self.reader.seek(SeekFrom::Start(self.pos)).unwrap();
-                        callback(self.filename, line.replace("\n", ""));
+                        callback(self.filename.clone(), line.replace("\n", ""));
                         line.clear();
                     }else {
                         if self.finish{
