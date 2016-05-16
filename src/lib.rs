@@ -17,7 +17,7 @@ pub struct LogWatcher{
 }
 
 impl LogWatcher {
-    pub fn register(filename: String, start_pos: u64) -> Result<LogWatcher, io::Error> {
+    pub fn register(filename: String, start_pos: i64) -> Result<LogWatcher, io::Error> {
         let f = match File::open(filename.clone()) {
             Ok(x) => x,
             Err(err) => return Err(err)
@@ -32,7 +32,7 @@ impl LogWatcher {
         let pos = if start_pos == -1 {
             metadata.len()
         } else {
-            start_pos
+            start_pos as u64
         };
         reader.seek(SeekFrom::Start(pos)).unwrap();
         Ok(LogWatcher{filename: filename,
