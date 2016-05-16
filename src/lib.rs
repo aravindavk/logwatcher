@@ -17,7 +17,7 @@ pub struct LogWatcher{
 }
 
 impl LogWatcher {
-    pub fn register(filename: String, start_pos: i64) -> Result<LogWatcher, io::Error> {
+    pub fn register(filename: String, file_inode: i64, start_pos: i64) -> Result<LogWatcher, io::Error> {
         let f = match File::open(filename.clone()) {
             Ok(x) => x,
             Err(err) => return Err(err)
@@ -28,21 +28,26 @@ impl LogWatcher {
             Err(err) => return Err(err)
         };
 
-        let mut reader = BufReader::new(f); 
+        let mut reader = BufReader::new(f);
+        let inode = metadata.ino();
         let pos = if start_pos == -1 {
             metadata.len()
         } else {
-            start_pos as u64
+            if file_inode > -1 && file_inode == (inode as i64) {
+                start_pos as u64
+            } else {
+                0
+            }
         };
         reader.seek(SeekFrom::Start(pos)).unwrap();
         Ok(LogWatcher{filename: filename,
-                      inode: metadata.ino(),
+                      inode: inode,
                       pos: pos,
                       reader: reader,
                       finish: false})
     }
 
-    fn reopen_if_log_rotated(&mut self, callback: fn (filename: String, line: String)){
+    fn reopen_if_log_rotated(&mut self, callback: fn (filename: String, inode: u64, pos: u64, line: String)){
         loop {
             match File::open(self.filename.clone()) {
                 Ok(x) => {
@@ -78,7 +83,7 @@ impl LogWatcher {
         }
     }
 
-    pub fn watch(&mut self, callback: fn (filename: String, line: String)) {
+    pub fn watch(&mut self, callback: fn (filename: String, inode: u64, pos: u64, line: String)) {
         loop{
             let mut line = String::new();
             let resp = self.reader.read_line(&mut line);
@@ -87,7 +92,7 @@ impl LogWatcher {
                     if len > 0{
                         self.pos += len as u64;
                         self.reader.seek(SeekFrom::Start(self.pos)).unwrap();
-                        callback(self.filename.clone(), line.replace("\n", ""));
+                        callback(self.filename.clone(), self.inode.clone(), self.pos.clone(), line.replace("\n", ""));
                         line.clear();
                     }else {
                         if self.finish{
