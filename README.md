@@ -22,14 +22,10 @@ Add to your code,
     extern crate logwatcher;
     use logwatcher::LogWatcher;
 
-Create a callback function, which accepts String as input
-
-    fn parse_line(line: String) {
-        println!("Line {}", line);
-    }
-
-Register the logwatcher and watch it!
+Register the logwatcher, pass a closure and watch it!
 
     let mut log_watcher = LogWatcher::register("/var/log/check.log".to_string()).unwrap();
-    log_watcher.watch(parse_line);
 
+    log_watcher.watch(&|line: String| {
+        println!("Line {}", line);
+    });
