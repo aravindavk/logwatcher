@@ -22,13 +22,13 @@ impl LogWatcher {
             Ok(x) => x,
             Err(err) => return Err(err)
         };
-        
+
         let metadata = match f.metadata() {
             Ok(x) => x,
             Err(err) => return Err(err)
         };
 
-        let mut reader = BufReader::new(f);        
+        let mut reader = BufReader::new(f);
         let pos = metadata.len();
         reader.seek(SeekFrom::Start(pos)).unwrap();
         Ok(LogWatcher{filename: filename,
@@ -38,7 +38,8 @@ impl LogWatcher {
                       finish: false})
     }
 
-    fn reopen_if_log_rotated(&mut self, callback: fn (line: String)){
+    fn reopen_if_log_rotated<F: ?Sized>(&mut self, callback: &F)
+        where F: Fn(String) {
         loop {
             match File::open(self.filename.clone()) {
                 Ok(x) => {
@@ -74,7 +75,8 @@ impl LogWatcher {
         }
     }
 
-    pub fn watch(&mut self, callback: fn (line: String)) {
+    pub fn watch<F: ?Sized>(&mut self, callback: &F)
+        where F: Fn(String) {
         loop{
             let mut line = String::new();
             let resp = self.reader.read_line(&mut line);
@@ -101,9 +103,4 @@ impl LogWatcher {
             }
         }
     }
-}
-
-
-#[test]
-fn it_works() {
 }
