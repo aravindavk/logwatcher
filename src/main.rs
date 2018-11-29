@@ -4,7 +4,7 @@ use std::process::exit;
 extern crate logwatcher;
 use logwatcher::LogWatcher;
 
-fn main(){
+fn main() {
     let filename = match args().nth(1) {
         Some(x) => x,
         None => {
