@@ -7,6 +7,7 @@ use std::io::SeekFrom;
 use std::os::unix::fs::MetadataExt;
 use std::thread::sleep;
 use std::time::Duration;
+use std::path::Path;
 
 pub struct LogWatcher {
     filename: String,
@@ -17,8 +18,8 @@ pub struct LogWatcher {
 }
 
 impl LogWatcher {
-    pub fn register(filename: String) -> Result<LogWatcher, io::Error> {
-        let f = match File::open(filename.clone()) {
+    pub fn register<P: AsRef<Path>>(filename: P) -> Result<LogWatcher, io::Error> {
+        let f = match File::open(&filename) {
             Ok(x) => x,
             Err(err) => return Err(err),
         };
@@ -32,7 +33,7 @@ impl LogWatcher {
         let pos = metadata.len();
         reader.seek(SeekFrom::Start(pos)).unwrap();
         Ok(LogWatcher {
-            filename: filename,
+            filename: filename.as_ref().to_string_lossy().to_string(),
             inode: metadata.ino(),
             pos: pos,
             reader: reader,
@@ -45,7 +46,7 @@ impl LogWatcher {
         F: Fn(String),
     {
         loop {
-            match File::open(self.filename.clone()) {
+            match File::open(&self.filename) {
                 Ok(x) => {
                     let f = x;
                     let metadata = match f.metadata() {
