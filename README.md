@@ -14,18 +14,24 @@ Note: Tested only in Linux
 
 First, add the following to your `Cargo.toml`
 
-    [dependencies]
-    logwatcher = "0.1"
+```toml
+[dependencies]
+logwatcher = "0.1"
+```
 
 Add to your code,
 
-    extern crate logwatcher;
-    use logwatcher::LogWatcher;
+```rust
+extern crate logwatcher;
+use logwatcher::LogWatcher;
+```
 
 Register the logwatcher, pass a closure and watch it!
 
-    let mut log_watcher = LogWatcher::register("/var/log/check.log".to_string()).unwrap();
+```rust
+let mut log_watcher = LogWatcher::register("/var/log/check.log".to_string()).unwrap();
 
-    log_watcher.watch(&|line: String| {
-        println!("Line {}", line);
-    });
+log_watcher.watch(&|line: String| {
+    println!("Line {}", line);
+});
+```
