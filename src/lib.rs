@@ -40,9 +40,9 @@ impl LogWatcher {
         })
     }
 
-    fn reopen_if_log_rotated<F: ?Sized>(&mut self, callback: &F)
+    fn reopen_if_log_rotated<F: ?Sized>(&mut self, callback: &mut F)
     where
-        F: Fn(String),
+        F: FnMut(String),
     {
         loop {
             match File::open(self.filename.clone()) {
@@ -78,9 +78,9 @@ impl LogWatcher {
         }
     }
 
-    pub fn watch<F: ?Sized>(&mut self, callback: &F)
+    pub fn watch<F: ?Sized>(&mut self, callback: &mut F)
     where
-        F: Fn(String),
+        F: FnMut(String),
     {
         loop {
             let mut line = String::new();
