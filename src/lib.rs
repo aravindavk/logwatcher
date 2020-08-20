@@ -39,6 +39,9 @@ impl LogWatcher {
             finish: false,
         })
     }
+    pub fn force_reopen(&mut self) {
+        self.finish = true;
+    }
 
     fn reopen_if_log_rotated<F: ?Sized>(&mut self, callback: &mut F)
     where
