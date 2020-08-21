@@ -5,9 +5,9 @@ use std::io::BufReader;
 use std::io::ErrorKind;
 use std::io::SeekFrom;
 use std::os::unix::fs::MetadataExt;
+use std::path::Path;
 use std::thread::sleep;
 use std::time::Duration;
-use std::path::Path;
 
 pub struct LogWatcher {
     filename: String,
