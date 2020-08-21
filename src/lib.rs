@@ -9,7 +9,7 @@ use std::path::Path;
 use std::thread::sleep;
 use std::time::Duration;
 
-pub enum LogWatcherAction{
+pub enum LogWatcherAction {
     None,
     SeekToEnd,
 }
@@ -96,14 +96,12 @@ impl LogWatcher {
                     if len > 0 {
                         self.pos += len as u64;
                         self.reader.seek(SeekFrom::Start(self.pos)).unwrap();
-                        match callback(line.replace("\n", ""))
-                        {
+                        match callback(line.replace("\n", "")) {
                             LogWatcherAction::SeekToEnd => {
                                 println!("SeekToEnd");
                                 self.reader.seek(SeekFrom::End(0)).unwrap();
                             }
-                            LogWatcherAction::None => {
-                            }
+                            LogWatcherAction::None => {}
                         }
                         line.clear();
                     } else {
