@@ -1,6 +1,6 @@
 [package]
 name = "logwatcher"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Aravinda VK <mail@aravindavk.in>"]
 
 description = "A lib to watch log files for new Changes, just like tail -f"
