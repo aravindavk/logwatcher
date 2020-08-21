@@ -31,7 +31,8 @@ Register the logwatcher, pass a closure and watch it!
 ```rust
 let mut log_watcher = LogWatcher::register("/var/log/check.log".to_string()).unwrap();
 
-log_watcher.watch(&|line: String| {
+log_watcher.watch(&mut move |line: String| {
     println!("Line {}", line);
+    LogWatcherAction::None
 });
 ```
