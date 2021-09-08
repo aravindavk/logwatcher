@@ -13,7 +13,7 @@ use std::time::Duration;
 pub enum StartFrom {
     /// The beginning of the file
     Beginning,
-    /// Specify the position offset to start from
+    /// Specify the cursor position offset
     Offset(u64),
     /// The end of the file, which is the last known position
     End,
@@ -34,8 +34,8 @@ pub struct LogWatcher {
 
 impl LogWatcher {
     pub fn register<P: AsRef<Path>>(
-        starts_from: StartFrom,
         filename: P,
+        starts_from: StartFrom,
     ) -> Result<LogWatcher, io::Error> {
         let f = match File::open(&filename) {
             Ok(x) => x,
