@@ -65,7 +65,6 @@ impl LogWatcher {
                         self.finish = true;
                         self.watch(callback);
                         self.finish = false;
-                        println!("reloading log file");
                         self.reader = BufReader::new(f);
                         self.pos = 0;
                         self.inode = metadata.ino();
@@ -98,7 +97,6 @@ impl LogWatcher {
                         self.reader.seek(SeekFrom::Start(self.pos)).unwrap();
                         match callback(line.replace("\n", "")) {
                             LogWatcherAction::SeekToEnd => {
-                                println!("SeekToEnd");
                                 self.reader.seek(SeekFrom::End(0)).unwrap();
                             }
                             LogWatcherAction::None => {}
