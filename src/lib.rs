@@ -9,6 +9,13 @@ use std::path::Path;
 use std::thread::sleep;
 use std::time::Duration;
 
+pub use std::io::Error as LogWatcherError;
+
+pub enum LogWatcherEvent {
+    Line(String),
+    LogRotation,
+}
+
 pub enum LogWatcherAction {
     None,
     SeekToEnd,
@@ -46,9 +53,9 @@ impl LogWatcher {
         })
     }
 
-    fn reopen_if_log_rotated<F: ?Sized>(&mut self, callback: &mut F)
+    fn reopen_if_log_rotated<F: ?Sized>(&mut self, callback: &mut F) -> bool
     where
-        F: FnMut(String) -> LogWatcherAction,
+        F: FnMut(std::result::Result<LogWatcherEvent, LogWatcherError>) -> LogWatcherAction,
     {
         loop {
             match File::open(&self.filename) {
@@ -68,10 +75,11 @@ impl LogWatcher {
                         self.reader = BufReader::new(f);
                         self.pos = 0;
                         self.inode = metadata.ino();
+                        return true;
                     } else {
                         sleep(Duration::new(1, 0));
                     }
-                    break;
+                    return false;
                 }
                 Err(err) => {
                     if err.kind() == ErrorKind::NotFound {
@@ -83,9 +91,18 @@ impl LogWatcher {
         }
     }
 
+    fn handle_callback_action(&mut self, action: LogWatcherAction) {
+        match action {
+            LogWatcherAction::SeekToEnd => {
+                self.reader.seek(SeekFrom::End(0)).unwrap();
+            }
+            LogWatcherAction::None => {}
+        }
+    }
+
     pub fn watch<F: ?Sized>(&mut self, callback: &mut F)
     where
-        F: FnMut(String) -> LogWatcherAction,
+        F: FnMut(std::result::Result<LogWatcherEvent, LogWatcherError>) -> LogWatcherAction,
     {
         loop {
             let mut line = String::new();
@@ -95,24 +112,24 @@ impl LogWatcher {
                     if len > 0 {
                         self.pos += len as u64;
                         self.reader.seek(SeekFrom::Start(self.pos)).unwrap();
-                        match callback(line.replace("\n", "")) {
-                            LogWatcherAction::SeekToEnd => {
-                                self.reader.seek(SeekFrom::End(0)).unwrap();
-                            }
-                            LogWatcherAction::None => {}
-                        }
+                        let event = LogWatcherEvent::Line(line.replace("\n", ""));
+                        self.handle_callback_action(callback(Ok(event)));
                         line.clear();
                     } else {
                         if self.finish {
                             break;
                         } else {
-                            self.reopen_if_log_rotated(callback);
+                            if self.reopen_if_log_rotated(callback) {
+                                self.handle_callback_action(callback(Ok(
+                                    LogWatcherEvent::LogRotation,
+                                )));
+                            }
                             self.reader.seek(SeekFrom::Start(self.pos)).unwrap();
                         }
                     }
                 }
                 Err(err) => {
-                    println!("{}", err);
+                    self.handle_callback_action(callback(Err(err)));
                 }
             }
         }
